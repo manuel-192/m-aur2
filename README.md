@@ -1,1 +1,1 @@
-# m-aur2-src
+# m-aur2
