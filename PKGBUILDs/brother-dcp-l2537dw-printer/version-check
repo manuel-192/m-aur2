@@ -1,0 +1,33 @@
+#!/bin/bash
+
+Main() {  # Not directly used by pacman/makepkg but by other software.
+    local pkgname="$1"
+    local pkgver="$2"
+
+    if [ "$pkgname" = "" ] ; then
+        echo "==> Error: $FUNCNAME: give package name (pkgname value in PKGBUILD)!"
+        return 1
+    fi
+    if [ "$pkgver" = "" ] ; then
+        echo "==> Error: $FUNCNAME: give package version (pkgver value in PKGBUILD)!"
+        return 1
+    fi
+
+    local folderid=""
+    local Url="https://support.brother.com/g/b/downloadlist.aspx?c=fi&lang=fi&prod=dcpl2537dw_eu&os=128&flang=English"  # for DEB !!
+    local Urldata=$(curl -s "$Url")
+    local Line=$(echo "$Urldata" | grep -A3 "This is Generic LPR printer driver" | tail -n1)
+    local Version=$(echo "$Line" | sed 's|.*(\([0-9][0-9\.\-]*\)).*|\1|')
+    local Pkgver=$(echo "$Version" | cut -d '-' -f1)
+  # local Date=$(echo "$Line" | sed 's|.*>\([0-9][0-9/]*\).*|\1|')
+
+    if [ "$Pkgver" != "$pkgver" ] ; then
+        Line=$(echo "$Urldata" | grep "Linux printer driver (deb package)")
+        folderid=$(echo "$Line" | sed 's|.*dlid=\([a-z0-9][a-z0-9]*\).*|\1|')
+        echo "==> $pkgname: new pkgver:    $Pkgver" >&2
+        echo "==> $pkgname: new _folderid: $folderid" >&2
+        return 1
+    fi
+}
+
+Main "$@"

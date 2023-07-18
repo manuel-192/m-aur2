@@ -1,0 +1,71 @@
+#!/bin/bash
+# Maintainer: Harvey <harv@gmx.de>
+
+license=('GPL' 'custom:Brother')
+arch=('x86_64')
+pkgname=brscan4
+pkgver=0.4.11
+pkgrel=1
+pkgdesc="SANE drivers from Brother for brscan4 compatible models"
+depends=('sane' 'libusb-compat')
+url="https://support.brother.com"
+install=$pkgname.install
+
+_dlfolder=dlf105203
+
+_pkgfile=${pkgname}-${pkgver}-${pkgrel}.x86_64.rpm
+
+source=("https://download.brother.com/welcome/$_dlfolder/$_pkgfile"
+	"agree.html"
+	mk-udev-rules)
+
+md5sums=('54dec75887de091fde5fcd511d9a57c3'
+         'ccffb9a6f6d436b21be25b0241068981'
+         '9a23d2af36609fbf2b0aa75269553701')
+sha512sums=('c97a7f51398e34783a7099a118bad320b01e220f6ba942504194d6d2e5e10164168594820232f3861458916be1985ed23560b9b635d2755f03551c663768ebf7'
+            '9638fe89f1c7c297ba74964c80ba3ef4b241c4d95be58a2d6063e4bacdb844361beb9a5f0c39334a8a5aa735733e22a791497a2c32cc321485ad3213a74b40ed'
+            '95d659e6c72d159ab63450fdc37c63517920f5b71a9b40e15bf5962e77061edb86864fd63c05d3a69c60badf405dc36374a42608211a706509b8ce61dd01d483')
+
+_version_check() {
+    # This function is used by assets.conf!
+
+    # Check if version has changed.
+
+    local infourl='https://support.brother.com/g/b/downloadlist.aspx?c=fi&lang=fi&prod=dcpl2537dw_eu&os=127&flang=English'
+    local data="$(curl -s "$infourl")"
+    local dlfolder="$(echo "$data" | grep "Scanner driver 64bit (rpm package)" | sed -e 's|^.*dlid=||' -e 's|_.*||')"
+    local version="$( echo "$data" | grep -A4 "Scanner driver 64bit (rpm package)" | tail -n1 | sed -e 's|.*(||' -e 's|).*||')"          # 0.4.10-1
+    local date="$(    echo "$data" | grep -A4 "Scanner driver 64bit (rpm package)" | tail -n1 | sed -e 's|.*<em>||' -e 's|<br>.*||')"
+
+    if [ "$version" != "${pkgver}-$pkgrel" ] || [ "$dlfolder" != "$_dlfolder" ] ; then
+        echo "Info: $pkgname: new version:     $version" >&2
+        echo "Info: $pkgname: download folder: $dlfolder" >&2
+        echo "Info: $pkgname: date:            $date" >&2
+        echo "TODO: "  >&2
+        echo "  - update pkgver" >&2
+        echo "  - updpkgsums" >&2
+        return 1
+    fi
+}
+
+build() {
+    cd "$srcdir"
+    umask 022
+    mkdir -p etc/udev/rules.d
+    ./mk-udev-rules opt/brother/scanner/brscan4/{Brsane4.ini,models4/*.ini} > etc/udev/rules.d/40-$pkgname.rules
+}
+
+package() {
+    cp -r $srcdir/etc $pkgdir
+    cp -r $srcdir/opt $pkgdir
+    cp -r $srcdir/usr $pkgdir
+    install -D -m644 $srcdir/agree.html $pkgdir/usr/share/licenses/$pkgname/LICENSE.html
+    mv $pkgdir/usr/lib64 $pkgdir/usr/lib
+    # move the links to the right direction
+    pushd $pkgdir/usr/lib/sane >/dev/null
+    ln -sf libsane-brother4.so.1.0.7 $pkgdir/usr/lib/sane/libsane-brother4.so.1
+    ln -sf libsane-brother4.so.1 $pkgdir/usr/lib/sane/libsane-brother4.so
+    popd >/dev/null
+
+    rm ../$_pkgfile
+}
