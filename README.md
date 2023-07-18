@@ -1,4 +1,4 @@
-# m-aur
+# m-aur2
 A selection of pre-built AUR packages.
 
 [Usage & News](../../../m-repo-info/blob/master/README.md)<br>
