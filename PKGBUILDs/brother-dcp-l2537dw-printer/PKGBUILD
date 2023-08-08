@@ -3,16 +3,17 @@
 # Maintainer: lhark <lhark at hotmail dot fr>
 
 pkgname=brother-dcp-l2537dw-printer
-_folderid=dlf103575
-pkgver=4.0.0
-pkgrel=1.1
-pkgrel_orig=1
+pkgver=4.0.0                 # this version: 02/11/2017 (4.0.0-1)
+pkgrel=1
 
 pkgdesc="LPR and CUPS driver for the Brother DCP-L2537DW printer"
 arch=(x86_64)
 url="https://support.brother.com"
 license=("EULA")
-_pkgfile=dcpl2537dwpdrv-${pkgver}-$pkgrel_orig.i386.deb
+
+_folderid=dlf103575
+_pkgfile=dcpl2537dwpdrv-${pkgver}-$pkgrel.i386.deb
+
 source=(
     "https://download.brother.com/welcome/$_folderid/$_pkgfile"
     version-check
@@ -23,6 +24,7 @@ depends=(cups)
 
 #_version_check() {
 #    ./version-check $pkgname $pkgver
+#    https://support.brother.com/g/b/downloadlist.aspx?c=fi&lang=fi&prod=dcpl2537dw_eu&os=128&flang=English
 #}
 
 package() {
