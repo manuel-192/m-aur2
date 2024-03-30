@@ -4,7 +4,7 @@
 
 pkgname=brother-dcp-l2537dw-printer
 pkgver=4.0.0                 # this version: 02/11/2017 (4.0.0-1)
-pkgrel=1
+pkgrel=1.1
 
 pkgdesc="LPR and CUPS driver for the Brother DCP-L2537DW printer"
 arch=(x86_64)
